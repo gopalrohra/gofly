@@ -1,11 +1,16 @@
 package flyapi
 
 type Bind = func(interface{})
-type FlyAPIResource interface {
-	Init(FlyAPIContext, Bind) FlyAPIResource
-	Parse() FlyAPIResource
-	Authorize() FlyAPIResource
-	Execute() FlyAPIResource
+type FlyAPIResource struct {
+	Authenticate bool
+	AllowedRoles []string
+	Controller   FlyAPIController
+}
+type FlyAPIController interface {
+	Init(FlyAPIContext, Bind) FlyAPIController
+	Parse() FlyAPIController
+	Authorize() FlyAPIController
+	Execute() FlyAPIController
 	GetResponse() FlyAPIResponse
 }
 type User struct {
