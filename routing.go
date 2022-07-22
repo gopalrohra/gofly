@@ -73,9 +73,22 @@ func processRoute(w http.ResponseWriter, r *http.Request, route Route) {
 		}
 		t := RequestTransformer{request: r}
 		controller := resource.Controller
-		response := controller.Init(ctx, t.populateData).Validate().Authorize().Execute().GetResponse()
+		response := processController(controller, ctx, t)
 		fmt.Fprint(w, util.ToJSONString(response))
 	} else {
 		fmt.Fprint(w, util.ToJSONString(MethodNotAllowedResponse))
 	}
+}
+func processController(controller FlyAPIController, ctx FlyAPIContext, t RequestTransformer) FlyAPIResponse {
+	controller.Init(ctx, t.populateData)
+	if !controller.HasErrors() {
+		controller.Validate()
+	}
+	if !controller.HasErrors() {
+		controller.Authorize()
+	}
+	if !controller.HasErrors() {
+		controller.Execute()
+	}
+	return controller.GetResponse()
 }

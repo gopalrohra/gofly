@@ -10,10 +10,11 @@ type FlyAPIResource struct {
 	Controller    FlyAPIController
 }
 type FlyAPIController interface {
-	Init(FlyAPIContext, Bind) FlyAPIController
-	Validate() FlyAPIController
-	Authorize() FlyAPIController
-	Execute() FlyAPIController
+	Init(FlyAPIContext, Bind)
+	Validate()
+	Authorize()
+	Execute()
+	HasErrors() bool
 	GetResponse() FlyAPIResponse
 }
 type User struct {
