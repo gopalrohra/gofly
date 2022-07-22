@@ -1,14 +1,17 @@
 package flyapi
 
+import "net/http"
+
 type Bind = func(interface{})
+type AuthFunc = func(w http.ResponseWriter, r *http.Request) FlyAPIContext
 type FlyAPIResource struct {
-	Authenticate bool
-	AllowedRoles []string
-	Controller   FlyAPIController
+	Authenticator AuthFunc
+	AllowedRoles  []string
+	Controller    FlyAPIController
 }
 type FlyAPIController interface {
 	Init(FlyAPIContext, Bind) FlyAPIController
-	Parse() FlyAPIController
+	Validate() FlyAPIController
 	Authorize() FlyAPIController
 	Execute() FlyAPIController
 	GetResponse() FlyAPIResponse
@@ -19,9 +22,8 @@ type User struct {
 	Email  string
 }
 type FlyAPIContext struct {
-	User  User
-	Paths []string
-	Data  interface{}
+	User User
+	Data interface{}
 }
 type FlyAPIResponse struct {
 	Status  string
