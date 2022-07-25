@@ -8,7 +8,9 @@ type FlyAPIResource struct {
 	Authenticator AuthFunc
 	AllowedRoles  []string
 	Controller    FlyAPIController
+	NewController ControllerProvider
 }
+type ControllerProvider = func() *FlyAPIController
 type FlyAPIController interface {
 	Init(FlyAPIContext, Bind)
 	Validate()
