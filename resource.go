@@ -10,7 +10,7 @@ type FlyAPIResource struct {
 	Controller    FlyAPIController
 	NewController ControllerProvider
 }
-type ControllerProvider = func() *FlyAPIController
+type ControllerProvider = func() FlyAPIController
 type FlyAPIController interface {
 	Init(FlyAPIContext, Bind)
 	Validate()

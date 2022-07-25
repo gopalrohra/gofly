@@ -72,7 +72,7 @@ func processRoute(w http.ResponseWriter, r *http.Request, route Route) {
 			}
 		}
 		t := RequestTransformer{request: r}
-		response := processController(*resource.NewController(), ctx, t)
+		response := processController(resource.NewController(), ctx, t)
 		fmt.Fprint(w, util.ToJSONString(response))
 	} else {
 		fmt.Fprint(w, util.ToJSONString(MethodNotAllowedResponse))
