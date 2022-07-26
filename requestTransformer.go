@@ -80,6 +80,10 @@ func (transformer *RequestTransformer) processField(f reflect.Value, tag reflect
 		if transformer.postData[tag.Get("requestParamName")] != nil {
 			value = fmt.Sprint(transformer.postData[tag.Get("requestParamName")])
 		}
+	} else if tag.Get("requestParamSource") == "path" {
+		if transformer.pathParameters[tag.Get("requestParamName")] != nil {
+			value = fmt.Sprint(transformer.postData[tag.Get("requestParamName")])
+		}
 	}
 	transformers[f.Type().String()](f, value)
 }
