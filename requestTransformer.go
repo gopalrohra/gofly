@@ -6,17 +6,23 @@ import (
 	"io/ioutil"
 	"net/http"
 	"reflect"
+	"strings"
 
 	"github.com/gopalrohra/flyapi/util"
 )
 
 type RequestTransformer struct {
-	request  *http.Request
-	postData map[string]interface{}
+	request        *http.Request
+	routePath      string
+	postData       map[string]interface{}
+	pathParameters map[string]interface{}
 }
 
-func (transformer RequestTransformer) populateData(dest interface{}) {
+func (transformer *RequestTransformer) parseParameters() {
 	transformer.postData = parsePostParams(transformer.request)
+	transformer.pathParameters = parsePathParams(transformer.request, transformer.routePath)
+}
+func (transformer *RequestTransformer) populateData(dest interface{}) {
 	e := reflect.ValueOf(dest).Elem()
 	fmt.Printf("Kind of e: %v\n", e.Kind())
 	transformer.processFields(e)
@@ -27,7 +33,26 @@ func parsePostParams(r *http.Request) map[string]interface{} {
 	json.Unmarshal(body, &m)
 	return m
 }
-func (transformer RequestTransformer) processFields(e reflect.Value) {
+func parsePathParams(r *http.Request, routePath string) map[string]interface{} {
+	m := make(map[string]interface{})
+	if !strings.Contains(routePath, ":") {
+		return m
+	}
+	var requestPathElements, routePathElements []string
+	requestPathElements = strings.Split(r.URL.Path, "/")
+	routePathElements = strings.Split(routePath, "/")
+	if len(requestPathElements) != len(routePathElements) {
+		return m
+	}
+	for i := 0; i < len(requestPathElements); i++ {
+		if strings.Contains(routePathElements[i], ":") {
+			key := strings.Replace(routePathElements[i], ":", "", 1)
+			m[key] = requestPathElements[i]
+		}
+	}
+	return m
+}
+func (transformer *RequestTransformer) processFields(e reflect.Value) {
 	for i := 0; i < e.NumField(); i++ {
 		name := e.Type().Field(i).Name
 		tag := e.Type().Field(i).Tag
@@ -47,7 +72,7 @@ func (transformer RequestTransformer) processFields(e reflect.Value) {
 		}
 	}
 }
-func (transformer RequestTransformer) processField(f reflect.Value, tag reflect.StructTag) {
+func (transformer *RequestTransformer) processField(f reflect.Value, tag reflect.StructTag) {
 	var value string
 	if tag.Get("requestParamSource") == "query" {
 		value = transformer.request.URL.Query().Get(tag.Get("requestParamName"))
