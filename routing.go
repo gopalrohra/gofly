@@ -38,16 +38,17 @@ func (router *Router) HandleRouting(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, util.ToJSONString(NotFoundResponse))
 		return
 	}
+	fmt.Printf("Value of route path: %s and value of request path: %s\n", route.Path, r.URL.Path)
 	processRoute(w, r, route)
 }
 func (router *Router) match(path string, method string) Route {
 	paths := strings.Split(path, "/")
 	for _, route := range router.Routes {
-		if path == route.Path { //&& route.AllowedMethods.Contains(method) {
+		if path == route.Path {
 			return route
 		}
 		routePaths := strings.Split(route.Path, "/")
-		if len(paths) == len(routePaths) && elementsAreSame(paths, routePaths) { //&& route.AllowedMethods.Contains(method) {
+		if len(paths) == len(routePaths) && elementsAreSame(paths, routePaths) {
 			return route
 		}
 	}
