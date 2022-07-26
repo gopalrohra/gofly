@@ -72,6 +72,7 @@ func processRoute(w http.ResponseWriter, r *http.Request, route Route) {
 			}
 		}
 		t := RequestTransformer{request: r}
+		t.parseParameters()
 		response := processController(resource.NewController(), ctx, t)
 		fmt.Fprint(w, util.ToJSONString(response))
 	} else {
