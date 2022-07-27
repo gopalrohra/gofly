@@ -50,6 +50,7 @@ func parsePathParams(r *http.Request, routePath string) map[string]interface{} {
 			m[key] = requestPathElements[i]
 		}
 	}
+	fmt.Printf("Value of pathParams: %v\n", m)
 	return m
 }
 func (transformer *RequestTransformer) processFields(e reflect.Value) {
@@ -82,7 +83,7 @@ func (transformer *RequestTransformer) processField(f reflect.Value, tag reflect
 		}
 	} else if tag.Get("requestParamSource") == "path" {
 		if transformer.pathParameters[tag.Get("requestParamName")] != nil {
-			value = fmt.Sprint(transformer.postData[tag.Get("requestParamName")])
+			value = fmt.Sprint(transformer.pathParameters[tag.Get("requestParamName")])
 		}
 	}
 	transformers[f.Type().String()](f, value)
