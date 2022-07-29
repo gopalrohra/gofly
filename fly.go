@@ -10,26 +10,40 @@ import (
 	"github.com/rs/cors"
 )
 
-func Fly(config FlyConfig) {
-	var createDB = flag.Bool("createDB", false, "Creates a new database for tracking expenses")
-	var initializeMigration = flag.Bool("initMigration", false, "Initializes migration feature for the application")
-	var migrateDB = flag.Bool("migrateDB", false, "Runs the migration for the attendance database")
-	var start = flag.Bool("start", true, "Starts the expense tracker rest service")
+type cliOptions struct {
+	createDB            bool
+	initializeMigration bool
+	migrateDB           bool
+	start               bool
+}
+
+func parseFlags() cliOptions {
+	var options cliOptions
+	flag.BoolVar(&options.createDB, "createDB", false, "Creates a new database for the database")
+	flag.BoolVar(&options.initializeMigration, "initMigration", false, "Initializes migration feature for the application")
+	flag.BoolVar(&options.migrateDB, "migrateDB", false, "Runs the database migration for the application")
+	flag.BoolVar(&options.start, "start", true, "Starts the http server")
 	flag.Parse()
+	return options
+}
+func Fly(config FlyConfig) {
 	env.LoadEnvironment()
-	if *createDB {
+	doWork(parseFlags(), config)
+}
+func doWork(opts cliOptions, config FlyConfig) {
+	if opts.createDB {
 		config.Migration.CreateDatabase()
 		return
 	}
-	if *initializeMigration {
+	if opts.initializeMigration {
 		config.Migration.Init()
 		return
 	}
-	if *migrateDB {
+	if opts.migrateDB {
 		config.Migration.MigrateDB()
 		return
 	}
-	if *start {
+	if opts.start {
 		log.Println("Initializing cors...")
 		c := initializeCors()
 		log.Println("Registering routes.")
