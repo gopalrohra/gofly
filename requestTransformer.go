@@ -7,8 +7,6 @@ import (
 	"net/http"
 	"reflect"
 	"strings"
-
-	"github.com/gopalrohra/flyapi/util"
 )
 
 type RequestTransformer struct {
@@ -63,7 +61,7 @@ func (transformer *RequestTransformer) processFields(e reflect.Value) {
 		if f.IsValid() && f.CanSet() && f.Kind() != reflect.Struct {
 			transformer.processField(f, tag)
 		} else if f.IsValid() && f.CanSet() && f.Kind() == reflect.Struct {
-			if _, ok := transformers[f.Type().String()]; ok {
+			if _, ok := Transformers[f.Type().String()]; ok {
 				fmt.Printf("Transformer key: %s\n", f.Type().String())
 				transformer.processField(f, tag)
 			} else {
@@ -86,29 +84,5 @@ func (transformer *RequestTransformer) processField(f reflect.Value, tag reflect
 			value = fmt.Sprint(transformer.pathParameters[tag.Get("requestParamName")])
 		}
 	}
-	transformers[f.Type().String()](f, value)
-}
-
-type TransformerFunc = func(reflect.Value, string)
-
-func intTransformer(f reflect.Value, v string) {
-	fmt.Printf("Value of request param:%v\n", v)
-	intV := util.ToInt(v)
-	if !f.OverflowInt(int64(intV)) {
-		f.SetInt(int64(intV))
-	}
-}
-func stringTransformer(f reflect.Value, v string) {
-	fmt.Println(v)
-	f.SetString(v)
-}
-
-var transformers = map[string]TransformerFunc{
-	"int":       intTransformer,
-	"string":    stringTransformer,
-	"time.Time": timeTransformer,
-}
-
-func timeTransformer(f reflect.Value, v string) {
-	f.Set(reflect.ValueOf(util.ToDate(v)))
+	Transformers[f.Type().String()](f, value)
 }
