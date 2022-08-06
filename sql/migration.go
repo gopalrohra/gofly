@@ -48,7 +48,7 @@ func (migration *FlyDBMigration) MigrateDB() {
 	}
 
 	for version, migrateFunc := range migration.Migrations {
-		if contains(m, version) {
+		if !contains(m, version) {
 			migrateFunc(db, version)
 		}
 	}
