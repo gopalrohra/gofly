@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/gopalrohra/flyapi/env"
+	"github.com/gopalrohra/flyapi/sql"
 	"github.com/rs/cors"
 )
 
@@ -31,16 +32,17 @@ func Fly(config FlyConfig) {
 	doWork(parseFlags(), config)
 }
 func doWork(opts cliOptions, config FlyConfig) {
+	dbMigration := sql.FlyDBMigration{Migrations: config.Migrations}
 	if opts.createDB {
-		config.Migration.CreateDatabase()
+		dbMigration.CreateDatabase()
 		return
 	}
 	if opts.initializeMigration {
-		config.Migration.Init()
+		dbMigration.Init()
 		return
 	}
 	if opts.migrateDB {
-		config.Migration.MigrateDB()
+		dbMigration.MigrateDB()
 		return
 	}
 	if opts.start {

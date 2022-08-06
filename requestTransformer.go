@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"reflect"
 	"strings"
+
+	"github.com/gopalrohra/flyapi/transformers"
 )
 
 type RequestTransformer struct {
@@ -61,7 +63,7 @@ func (transformer *RequestTransformer) processFields(e reflect.Value) {
 		if f.IsValid() && f.CanSet() && f.Kind() != reflect.Struct {
 			transformer.processField(f, tag)
 		} else if f.IsValid() && f.CanSet() && f.Kind() == reflect.Struct {
-			if _, ok := Transformers[f.Type().String()]; ok {
+			if _, ok := transformers.Transformers[f.Type().String()]; ok {
 				fmt.Printf("Transformer key: %s\n", f.Type().String())
 				transformer.processField(f, tag)
 			} else {
@@ -84,5 +86,5 @@ func (transformer *RequestTransformer) processField(f reflect.Value, tag reflect
 			value = fmt.Sprint(transformer.pathParameters[tag.Get("requestParamName")])
 		}
 	}
-	Transformers[f.Type().String()](f, value)
+	transformers.Transformers[f.Type().String()](f, value)
 }

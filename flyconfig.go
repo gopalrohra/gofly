@@ -1,8 +1,10 @@
 package flyapi
 
+import "github.com/gopalrohra/flyapi/sql"
+
 type FlyConfig struct {
-	Migration DBMigration
-	Routes    []Route
+	Migrations map[string]sql.MigrateFunc
+	Routes     []Route
 }
 type DBMigration interface {
 	Init()

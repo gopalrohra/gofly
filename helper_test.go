@@ -16,7 +16,5 @@ func (m *MockDBMigration) MigrateDB() {
 }
 
 func buildTestConfig(m DBMigration) FlyConfig {
-	return FlyConfig{
-		Migration: m,
-	}
+	return FlyConfig{}
 }
