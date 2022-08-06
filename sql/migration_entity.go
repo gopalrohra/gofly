@@ -7,3 +7,7 @@ type Migration struct {
 	Version      string    `dbColumnName:"version" dbOperations:"insert"`
 	CreationTime time.Time `dbColumnName:"creation_time" dbOperations:"insert"`
 }
+
+func (m *Migration) GetTableName() string {
+	return "migrations"
+}
