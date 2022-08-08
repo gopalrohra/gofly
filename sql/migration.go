@@ -3,6 +3,7 @@ package sql
 import (
 	"fmt"
 	"log"
+	"time"
 )
 
 type MigrateFunc = func(Database, string)
@@ -55,12 +56,20 @@ func (migration *FlyDBMigration) MigrateDB() {
 
 	for version, migrateFunc := range migration.Migrations {
 		if !contains(m, version) {
+			//todo: handle in single transaction
 			migrateFunc(db, version)
+			updateMigration(db, version)
 		}
 	}
 	fmt.Println("Migrations done")
 }
-
+func updateMigration(db Database, version string) {
+	m := Migration{Version: version, CreationTime: time.Now()}
+	err := db.Insert(&m)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
 func contains(elements []Migration, item string) bool {
 	for _, element := range elements {
 		if element.Version == item {
