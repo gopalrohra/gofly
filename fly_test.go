@@ -22,7 +22,7 @@ func TestDoWorkDBInit(t *testing.T) {
 	},
 	}
 	for _, table := range testTable {
-		doWork(table.options, buildTestConfig(table.m))
+		doWork(table.m, table.options, buildTestConfig(table.m))
 		if table.m.expectedMethodCall != table.m.methodCalled {
 			t.Errorf("Test: %s -- Expected %s to be called and %s method was called", table.name, table.m.expectedMethodCall, table.m.methodCalled)
 		}

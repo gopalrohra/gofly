@@ -6,6 +6,12 @@ import (
 )
 
 type MigrateFunc = func(Database, string)
+type DBMigration interface {
+	Init()
+	CreateDatabase()
+	MigrateDB()
+}
+
 type FlyDBMigration struct {
 	Migrations map[string]MigrateFunc
 }

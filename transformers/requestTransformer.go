@@ -1,4 +1,4 @@
-package flyapi
+package transformers
 
 import (
 	"encoding/json"
@@ -7,22 +7,20 @@ import (
 	"net/http"
 	"reflect"
 	"strings"
-
-	"github.com/gopalrohra/flyapi/transformers"
 )
 
 type RequestTransformer struct {
-	request        *http.Request
-	routePath      string
+	Request        *http.Request
+	RoutePath      string
 	postData       map[string]interface{}
 	pathParameters map[string]interface{}
 }
 
-func (transformer *RequestTransformer) parseParameters() {
-	transformer.postData = parsePostParams(transformer.request)
-	transformer.pathParameters = parsePathParams(transformer.request, transformer.routePath)
+func (transformer *RequestTransformer) ParseParameters() {
+	transformer.postData = parsePostParams(transformer.Request)
+	transformer.pathParameters = parsePathParams(transformer.Request, transformer.RoutePath)
 }
-func (transformer *RequestTransformer) populateData(dest interface{}) {
+func (transformer *RequestTransformer) PopulateData(dest interface{}) {
 	e := reflect.ValueOf(dest).Elem()
 	fmt.Printf("Kind of e: %v\n", e.Kind())
 	transformer.processFields(e)
@@ -63,7 +61,7 @@ func (transformer *RequestTransformer) processFields(e reflect.Value) {
 		if f.IsValid() && f.CanSet() && f.Kind() != reflect.Struct {
 			transformer.processField(f, tag)
 		} else if f.IsValid() && f.CanSet() && f.Kind() == reflect.Struct {
-			if _, ok := transformers.Transformers[f.Type().String()]; ok {
+			if _, ok := Transformers[f.Type().String()]; ok {
 				fmt.Printf("Transformer key: %s\n", f.Type().String())
 				transformer.processField(f, tag)
 			} else {
@@ -76,7 +74,7 @@ func (transformer *RequestTransformer) processFields(e reflect.Value) {
 func (transformer *RequestTransformer) processField(f reflect.Value, tag reflect.StructTag) {
 	var value string
 	if tag.Get("requestParamSource") == "query" {
-		value = transformer.request.URL.Query().Get(tag.Get("requestParamName"))
+		value = transformer.Request.URL.Query().Get(tag.Get("requestParamName"))
 	} else if tag.Get("requestParamSource") == "body" {
 		if transformer.postData[tag.Get("requestParamName")] != nil {
 			value = fmt.Sprint(transformer.postData[tag.Get("requestParamName")])
@@ -86,5 +84,5 @@ func (transformer *RequestTransformer) processField(f reflect.Value, tag reflect
 			value = fmt.Sprint(transformer.pathParameters[tag.Get("requestParamName")])
 		}
 	}
-	transformers.Transformers[f.Type().String()](f, value)
+	Transformers[f.Type().String()](f, value)
 }

@@ -1,10 +1,11 @@
-package flyapi
+package rest
 
 import (
 	"fmt"
 	"net/http"
 	"strings"
 
+	"github.com/gopalrohra/flyapi/transformers"
 	"github.com/gopalrohra/flyapi/util"
 	"github.com/rs/cors"
 )
@@ -72,16 +73,16 @@ func processRoute(w http.ResponseWriter, r *http.Request, route Route) {
 				return
 			}
 		}
-		t := RequestTransformer{request: r, routePath: route.Path}
-		t.parseParameters()
+		t := transformers.RequestTransformer{Request: r, RoutePath: route.Path}
+		t.ParseParameters()
 		response := processController(resource.NewController(), ctx, t)
 		fmt.Fprint(w, util.ToJSONString(response))
 	} else {
 		fmt.Fprint(w, util.ToJSONString(MethodNotAllowedResponse))
 	}
 }
-func processController(controller FlyAPIController, ctx FlyAPIContext, t RequestTransformer) FlyAPIResponse {
-	controller.Init(ctx, t.populateData)
+func processController(controller FlyAPIController, ctx FlyAPIContext, t transformers.RequestTransformer) FlyAPIResponse {
+	controller.Init(ctx, t.PopulateData)
 	if !controller.HasErrors() {
 		controller.Validate()
 	}

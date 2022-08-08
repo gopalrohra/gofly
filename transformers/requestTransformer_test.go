@@ -1,4 +1,4 @@
-package flyapi
+package transformers
 
 import (
 	"net/http"
@@ -10,8 +10,8 @@ func TestParseParameters(t *testing.T) {
 	if err != nil {
 		t.Error("Failed to initialize mocked http.request")
 	}
-	transformer := RequestTransformer{routePath: "/orders/:id", request: r}
-	transformer.parseParameters()
+	transformer := RequestTransformer{RoutePath: "/orders/:id", Request: r}
+	transformer.ParseParameters()
 	if transformer.pathParameters["id"] != "1" {
 		t.Errorf("Expected: 1 and got: %s\n", transformer.pathParameters["id"])
 	}

@@ -1,4 +1,4 @@
-package flyapi
+package rest
 
 import "net/http"
 

@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/gopalrohra/flyapi/env"
+	"github.com/gopalrohra/flyapi/rest"
 	"github.com/gopalrohra/flyapi/sql"
 	"github.com/rs/cors"
 )
@@ -29,10 +30,10 @@ func parseFlags() cliOptions {
 }
 func Fly(config FlyConfig) {
 	env.LoadEnvironment()
-	doWork(parseFlags(), config)
-}
-func doWork(opts cliOptions, config FlyConfig) {
 	dbMigration := sql.FlyDBMigration{Migrations: config.Migrations}
+	doWork(&dbMigration, parseFlags(), config)
+}
+func doWork(dbMigration sql.DBMigration, opts cliOptions, config FlyConfig) {
 	if opts.createDB {
 		dbMigration.CreateDatabase()
 		return
@@ -65,6 +66,6 @@ func initializeCors() *cors.Cors {
 		AllowedMethods: []string{"HEAD", "GET", "POST", "PUT"},
 	})
 }
-func registerRoutes(c *cors.Cors, config *FlyConfig) *Router {
-	return &Router{Routes: config.Routes, Cors: c}
+func registerRoutes(c *cors.Cors, config *FlyConfig) *rest.Router {
+	return &rest.Router{Routes: config.Routes, Cors: c}
 }
