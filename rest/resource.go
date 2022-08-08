@@ -10,14 +10,7 @@ type FlyAPIResource struct {
 	NewController ControllerProvider
 }
 type ControllerProvider = func() FlyAPIController
-type FlyAPIController interface {
-	Init(FlyAPIContext, Bind)
-	Validate()
-	Authorize()
-	Execute()
-	HasErrors() bool
-	GetResponse() FlyAPIResponse
-}
+
 type User struct {
 	UserID int
 	Role   string
