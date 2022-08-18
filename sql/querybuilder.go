@@ -28,6 +28,7 @@ func (qb *queryBuilder) insertQuery(dbInfo *grpcdb.DatabaseInfo, i interface{}) 
 		TableName: getTableName(i),
 	}
 	insertQuery.Columns, insertQuery.ColumnValues = getInsertColumnNameValues(i)
+	insertQuery.ReturningIdColumnName = "id"
 	return insertQuery
 }
 func (qb *queryBuilder) selectQuery(dbInfo *grpcdb.DatabaseInfo, i interface{}, queryClauses ...[]string) *grpcdb.SelectQuery {
