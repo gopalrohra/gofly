@@ -5,10 +5,12 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"reflect"
 	"strings"
 	"time"
 
 	"github.com/gopalrohra/flyapi/env"
+	"github.com/gopalrohra/flyapi/transformers"
 	grpcdb "github.com/gopalrohra/grpcdb/grpc_database"
 	"google.golang.org/grpc"
 )
@@ -82,7 +84,22 @@ func (db *Database) Insert(i interface{}) error {
 	if strings.ToLower(iqr.Status) != "success" {
 		return errors.New(("Something went wrong"))
 	}
+	fmt.Println(iqr.InsertedId)
+	setReturnId(i, iqr.InsertedId)
 	return nil
+}
+func setReturnId(i interface{}, insertedID string) {
+	if reflect.TypeOf(i).Kind() != reflect.Ptr {
+		fmt.Println("Invalid target, must be ptr")
+		return
+	}
+	if reflect.TypeOf(i).Elem().Kind() == reflect.Struct {
+		v := reflect.ValueOf(i).Elem()
+		f := v.FieldByName("ID")
+		if !f.IsZero() && f.CanSet() {
+			transformers.Transformers[f.Type().String()](f, insertedID)
+		}
+	}
 }
 
 func (db *Database) Update(i interface{}, clauses []string) error {
