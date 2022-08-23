@@ -67,13 +67,13 @@ func Run(t *testing.T) {
 	}
 	//t.Log(tests)
 	for _, test := range tests {
-		t.Run(test.Name, func(t *testing.T) {
-			t.Parallel()
+		t.Run(test.Name, func(it *testing.T) {
+			it.Parallel()
 			res := makeRequest(test.APIRequest)
 			fmt.Println(res)
 			expect := ExpectationChecker{response: res, expectations: test.Expectations}
 			if !expect.shouldHave(test.Expectations.ShouldHave) {
-				t.Errorf("%s test failed with response: %v\n", test.Name, res)
+				it.Errorf("%s test failed with response: %v\n", test.Name, res)
 			}
 		})
 	}
@@ -86,6 +86,7 @@ func parseTestCases() ([]E2ETest, error) {
 	if testCaseFile != "" {
 		testCasesFile := fmt.Sprintf("%s/%s", testDir, testCaseFile)
 		tests, err := readTestCases(testCasesFile)
+		fmt.Printf("Found %v test cases.\n", len(tests))
 		return tests, err
 	} else {
 		fileInfo, err := ioutil.ReadDir(testDir)
