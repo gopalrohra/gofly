@@ -94,7 +94,7 @@ func parseTestCases() ([]E2ETest, error) {
 			return tests, nil
 		}
 		for _, file := range fileInfo {
-			result, err := readTestCases(file.Name())
+			result, err := readTestCases(testDir + file.Name())
 			if err != nil {
 				return tests, err
 			}
