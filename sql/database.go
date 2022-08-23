@@ -96,7 +96,7 @@ func setReturnId(i interface{}, insertedID string) {
 	if reflect.TypeOf(i).Elem().Kind() == reflect.Struct {
 		v := reflect.ValueOf(i).Elem()
 		f := v.FieldByName("ID")
-		fmt.Printf("Is f: zero: %v\n", f.IsZero())
+		fmt.Printf("Is f: zero: %va dn canSet: %v\n", f.IsZero(), f.CanSet())
 		if !f.IsZero() && f.CanSet() {
 			transformers.Transformers[f.Type().String()](f, insertedID)
 		}

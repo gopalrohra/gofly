@@ -68,7 +68,7 @@ func Run(t *testing.T) {
 	//t.Log(tests)
 	for _, test := range tests {
 		t.Run(test.Name, func(it *testing.T) {
-			it.Parallel()
+			//it.Parallel()
 			res := makeRequest(test.APIRequest)
 			fmt.Println(res)
 			expect := ExpectationChecker{response: res, expectations: test.Expectations}
@@ -80,11 +80,11 @@ func Run(t *testing.T) {
 }
 func parseTestCases() ([]E2ETest, error) {
 	var testDir = os.Getenv("testDir")
-	var testCaseFile = os.Getenv("testCaseFile") + ".json"
+	var testCaseFile = os.Getenv("testCaseFile")
 	fmt.Printf("Value of testDir: %v and value of testCaseFile: %v\n", testDir, testCaseFile)
 	var tests []E2ETest
 	if testCaseFile != "" {
-		testCasesFile := fmt.Sprintf("%s/%s", testDir, testCaseFile)
+		testCasesFile := fmt.Sprintf("%s/%s.json", testDir, testCaseFile)
 		tests, err := readTestCases(testCasesFile)
 		fmt.Printf("Found %v test cases.\n", len(tests))
 		return tests, err
@@ -100,6 +100,7 @@ func parseTestCases() ([]E2ETest, error) {
 			}
 			tests = append(tests, result...)
 		}
+		fmt.Printf("Found %v test cases.\n", len(tests))
 		return tests, nil
 	}
 }
