@@ -2,10 +2,10 @@ package sql
 
 import (
 	"errors"
-	"fmt"
 	"reflect"
 	"strings"
 
+	"github.com/gopalrohra/flyapi/log"
 	"github.com/gopalrohra/flyapi/transformers"
 	grpcdb "github.com/gopalrohra/grpcdb/grpc_database"
 )
@@ -16,14 +16,14 @@ type dataBinder struct {
 
 func (b *dataBinder) bind(sqr *grpcdb.SelectQueryResult, err error) error {
 	if err != nil {
-		fmt.Println(err)
+		log.Error(err)
 		return err
 	}
 	if "success" != strings.ToLower(sqr.Status) {
 		return errors.New("Something went wrong")
 	}
 	if reflect.TypeOf(b.target).Kind() != reflect.Ptr {
-		fmt.Println("Invalid target, must be ptr")
+		log.Error("Invalid target, must be ptr")
 		return errors.New("Target must be ptr")
 	}
 	if reflect.TypeOf(b.target).Elem().Kind() == reflect.Slice {
@@ -34,12 +34,12 @@ func (b *dataBinder) bind(sqr *grpcdb.SelectQueryResult, err error) error {
 	return nil
 }
 func bindRecords(target interface{}, sqr *grpcdb.SelectQueryResult) {
-	fmt.Println("Inside bindRecords")
+	log.Info("Inside bindRecords")
 	s := reflect.ValueOf(target).Elem()
 	t := reflect.TypeOf(target).Elem().Elem()
 	for _, row := range sqr.Records {
 		nv := reflect.New(t).Elem()
-		fmt.Println(nv.Kind())
+		log.Info(nv.Kind())
 		processRecord(nv, row)
 		s.Set(reflect.Append(s, nv))
 	}
@@ -63,10 +63,10 @@ func processField(f reflect.Value, tag reflect.StructTag, data map[string]interf
 	transformers.Transformers[f.Type().String()](f, data[tag.Get("dbColumnName")].(string))
 }
 func bindRecord(target interface{}, sqr *grpcdb.SelectQueryResult) {
-	fmt.Println("Inside bindRecord")
+	log.Info("Inside bindRecord")
 	for _, row := range sqr.Records {
 		nv := reflect.ValueOf(target).Elem()
-		fmt.Println(nv.Kind())
+		log.Info(nv.Kind())
 		processRecord(nv, row)
 	}
 }
@@ -75,6 +75,6 @@ func ToMap(record *grpcdb.Row) map[string]interface{} {
 	for _, column := range record.Columns {
 		result[column.ColumnName] = column.ColumnValue
 	}
-	fmt.Println("ToMap: ", result)
+	log.Info("ToMap: ", result)
 	return result
 }

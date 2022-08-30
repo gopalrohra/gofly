@@ -3,10 +3,10 @@ package flyapi
 import (
 	"flag"
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/gopalrohra/flyapi/env"
+	"github.com/gopalrohra/flyapi/log"
 	"github.com/gopalrohra/flyapi/rest"
 	"github.com/gopalrohra/flyapi/sql"
 	"github.com/rs/cors"
@@ -47,15 +47,15 @@ func doWork(dbMigration sql.DBMigration, opts cliOptions, config FlyConfig) {
 		return
 	}
 	if opts.start {
-		log.Println("Initializing cors...")
+		log.Info("Initializing cors...")
 		c := initializeCors()
-		log.Println("Registering routes.")
+		log.Info("Registering routes.")
 		router := registerRoutes(c, &config)
-		log.Printf("Starting the server on port %s\n", env.Config["SERVER_PORT"])
-		log.Println(env.Config)
+		log.Infof("Starting the server on port %s\n", env.Config["SERVER_PORT"])
+		log.Info(env.Config)
 		handler := http.HandlerFunc(router.HandleRouting)
 		serverHost := fmt.Sprintf("%s:%s", env.Config["SERVER_HOST"], env.Config["SERVER_PORT"])
-		fmt.Println(serverHost)
+		log.Info(serverHost)
 		log.Fatal(http.ListenAndServe(serverHost, handler))
 	}
 }

@@ -7,22 +7,29 @@ import (
 	"net/http"
 	"reflect"
 	"strings"
+
+	"github.com/gopalrohra/flyapi/log"
 )
 
 type RequestTransformer struct {
-	Request        *http.Request
-	RoutePath      string
+	request        *http.Request
+	routePath      string
 	postData       map[string]interface{}
 	pathParameters map[string]interface{}
 }
 
-func (transformer *RequestTransformer) ParseParameters() {
-	transformer.postData = parsePostParams(transformer.Request)
-	transformer.pathParameters = parsePathParams(transformer.Request, transformer.RoutePath)
+func NewRequestTransformer(r *http.Request, path string) RequestTransformer {
+	rt := RequestTransformer{request: r, routePath: path}
+	rt.parseParameters()
+	return rt
+}
+func (transformer *RequestTransformer) parseParameters() {
+	transformer.postData = parsePostParams(transformer.request)
+	transformer.pathParameters = parsePathParams(transformer.request, transformer.routePath)
 }
 func (transformer *RequestTransformer) PopulateData(dest interface{}) {
 	e := reflect.ValueOf(dest).Elem()
-	fmt.Printf("Kind of e: %v\n", e.Kind())
+	log.Debugf("Kind of e: %v\n", e.Kind())
 	transformer.processFields(e)
 }
 func parsePostParams(r *http.Request) map[string]interface{} {
@@ -48,24 +55,24 @@ func parsePathParams(r *http.Request, routePath string) map[string]interface{} {
 			m[key] = requestPathElements[i]
 		}
 	}
-	fmt.Printf("Value of pathParams: %v\n", m)
+	log.Debugf("Value of pathParams: %v\n", m)
 	return m
 }
 func (transformer *RequestTransformer) processFields(e reflect.Value) {
 	for i := 0; i < e.NumField(); i++ {
 		name := e.Type().Field(i).Name
 		tag := e.Type().Field(i).Tag
-		fmt.Printf("Value of name: %v and value of tag: %v\n", name, tag)
+		log.Debugf("Value of name: %v and value of tag: %v\n", name, tag)
 		f := e.FieldByName(name)
-		fmt.Printf("Kind of f: %v and CanSet for f: %v and type of v: %v \n", f.Kind(), f.CanSet(), f.Type().String())
+		log.Debugf("Kind of f: %v and CanSet for f: %v and type of v: %v \n", f.Kind(), f.CanSet(), f.Type().String())
 		if f.IsValid() && f.CanSet() && f.Kind() != reflect.Struct {
 			transformer.processField(f, tag)
 		} else if f.IsValid() && f.CanSet() && f.Kind() == reflect.Struct {
 			if _, ok := Transformers[f.Type().String()]; ok {
-				fmt.Printf("Transformer key: %s\n", f.Type().String())
+				log.Debugf("Transformer key: %s\n", f.Type().String())
 				transformer.processField(f, tag)
 			} else {
-				fmt.Println("Processing nested struct")
+				log.Debug("Processing nested struct")
 				transformer.processFields(f)
 			}
 		}
@@ -74,7 +81,7 @@ func (transformer *RequestTransformer) processFields(e reflect.Value) {
 func (transformer *RequestTransformer) processField(f reflect.Value, tag reflect.StructTag) {
 	var value string
 	if tag.Get("requestParamSource") == "query" {
-		value = transformer.Request.URL.Query().Get(tag.Get("requestParamName"))
+		value = transformer.request.URL.Query().Get(tag.Get("requestParamName"))
 	} else if tag.Get("requestParamSource") == "body" {
 		if transformer.postData[tag.Get("requestParamName")] != nil {
 			value = fmt.Sprint(transformer.postData[tag.Get("requestParamName")])

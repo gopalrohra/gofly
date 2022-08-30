@@ -10,8 +10,7 @@ func TestParseParameters(t *testing.T) {
 	if err != nil {
 		t.Error("Failed to initialize mocked http.request")
 	}
-	transformer := RequestTransformer{RoutePath: "/orders/:id", Request: r}
-	transformer.ParseParameters()
+	transformer := NewRequestTransformer(r, "/orders/:id")
 	if transformer.pathParameters["id"] != "1" {
 		t.Errorf("Expected: 1 and got: %s\n", transformer.pathParameters["id"])
 	}

@@ -1,11 +1,11 @@
 package sql
 
 import (
-	"fmt"
 	"reflect"
 	"strings"
 	"time"
 
+	"github.com/gopalrohra/flyapi/log"
 	"github.com/gopalrohra/flyapi/util"
 
 	grpcdb "github.com/gopalrohra/grpcdb/grpc_database"
@@ -13,9 +13,9 @@ import (
 
 type queryBuilder struct{}
 
-func (qb *queryBuilder) updateQuery(dbInfo grpcdb.DatabaseInfo, i interface{}, clauses []string) grpcdb.UpdateQuery {
-	uq := grpcdb.UpdateQuery{
-		Info:      &dbInfo,
+func (qb *queryBuilder) updateQuery(dbInfo *grpcdb.DatabaseInfo, i interface{}, clauses []string) *grpcdb.UpdateQuery {
+	uq := &grpcdb.UpdateQuery{
+		Info:      dbInfo,
 		TableName: getTableName(i),
 		Columns:   getUpdateColumns(i),
 		Clauses:   clauses,
@@ -38,7 +38,7 @@ func (qb *queryBuilder) selectQuery(dbInfo *grpcdb.DatabaseInfo, i interface{}, 
 	} else {
 		t = reflect.TypeOf(i).Elem()
 	}
-	fmt.Println(t)
+	log.Debug(t)
 	fields := extractFields(t)
 	sq := &grpcdb.SelectQuery{Info: dbInfo, Fields: fields, TableName: getTableName(i)}
 	if len(queryClauses) > 0 {
@@ -48,25 +48,25 @@ func (qb *queryBuilder) selectQuery(dbInfo *grpcdb.DatabaseInfo, i interface{}, 
 	} else if len(queryClauses) > 2 {
 		sq.Orderby = queryClauses[2]
 	}
-	fmt.Println(sq)
+	log.Debug(sq)
 	return sq
 }
 func getTableName(i interface{}) string {
 	var t reflect.Type
 	if reflect.TypeOf(i).Kind() == reflect.Ptr {
-		fmt.Println("Inside ptr condition")
+		log.Debug("Inside ptr condition")
 		if reflect.TypeOf(i).Elem().Kind() == reflect.Slice {
-			fmt.Println("Found slice in getTableName")
+			log.Debug("Found slice in getTableName")
 			t = reflect.TypeOf(i).Elem().Elem()
 		} else {
-			fmt.Println("Inside struct condition")
+			log.Debug("Inside struct condition")
 			t = reflect.TypeOf(i).Elem()
 		}
 	}
 
 	nv := reflect.New(t)
 	rv := nv.MethodByName("GetTableName").Call(nil)
-	fmt.Println(rv)
+	log.Debug(rv)
 	return rv[len(rv)-1].String()
 }
 
@@ -89,7 +89,7 @@ func getInsertColumnNameValues(entity interface{}) ([]string, []string) {
 		tag := e.Type().Field(i).Tag
 		f := e.FieldByName(name)
 		if tag.Get("dbColumnName") != "" && operationAllowed(tag.Get("dbOperations"), "insert") {
-			fmt.Printf("Entity field name: %v\n", name)
+			log.Debugf("Entity field name: %v\n", name)
 			columnNames = append(columnNames, tag.Get("dbColumnName"))
 			if f.Kind() == reflect.String {
 				columnValues = append(columnValues, util.SQ(f.String()))
@@ -100,7 +100,7 @@ func getInsertColumnNameValues(entity interface{}) ([]string, []string) {
 			}
 		}
 	}
-	fmt.Printf("Columns: %v and ColumnValues: %v\n", columnNames, columnValues)
+	log.Debugf("Columns: %v and ColumnValues: %v\n", columnNames, columnValues)
 	return columnNames, columnValues
 }
 func operationAllowed(operations string, operation string) bool {
@@ -121,7 +121,7 @@ func getUpdateColumns(entity interface{}) []*grpcdb.Column {
 		tag := e.Type().Field(i).Tag
 		f := e.FieldByName(name)
 		if tag.Get("dbColumnName") != "" && operationAllowed(tag.Get("dbOperations"), "update") {
-			fmt.Printf("Entity field name: %v\n", name)
+			log.Debugf("Entity field name: %v\n", name)
 			column := grpcdb.Column{ColumnName: tag.Get("dbColumnName")}
 			if f.Kind() == reflect.String {
 				column.ColumnValue = util.SQ(f.String())
@@ -133,6 +133,6 @@ func getUpdateColumns(entity interface{}) []*grpcdb.Column {
 			columns = append(columns, &column)
 		}
 	}
-	fmt.Printf("Columns: %v\n", columns)
+	log.Debugf("Columns: %v\n", columns)
 	return columns
 }

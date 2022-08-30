@@ -1,9 +1,9 @@
 package transformers
 
 import (
-	"fmt"
 	"reflect"
 
+	"github.com/gopalrohra/flyapi/log"
 	"github.com/gopalrohra/flyapi/util"
 )
 
@@ -16,14 +16,14 @@ var Transformers = map[string]TransformerFunc{
 }
 
 func IntTransformer(f reflect.Value, v string) {
-	fmt.Printf("Value of request param:%v\n", v)
+	log.Debugf("Value of request param:%v\n", v)
 	intV := util.ToInt(v)
 	if !f.OverflowInt(int64(intV)) {
 		f.SetInt(int64(intV))
 	}
 }
 func StringTransformer(f reflect.Value, v string) {
-	fmt.Println(v)
+	log.Info(v)
 	f.SetString(v)
 }
 func TimeTransformer(f reflect.Value, v string) {

@@ -3,13 +3,12 @@ package sql
 import (
 	"context"
 	"errors"
-	"fmt"
-	"log"
 	"reflect"
 	"strings"
 	"time"
 
 	"github.com/gopalrohra/flyapi/env"
+	"github.com/gopalrohra/flyapi/log"
 	"github.com/gopalrohra/flyapi/transformers"
 	grpcdb "github.com/gopalrohra/grpcdb/grpc_database"
 	"google.golang.org/grpc"
@@ -53,7 +52,7 @@ func (db *Database) Scan(i interface{}, queryClauses ...[]string) error {
 	defer grpcCancel()
 	conn, err := grpc.DialContext(grpcCtx, address, grpc.WithInsecure(), grpc.WithBlock())
 	if err != nil {
-		log.Printf("Couldn't connect to grpc server! Error: %v\n", err.Error())
+		log.Errorf("Couldn't connect to grpc server! Error: %v\n", err.Error())
 		return err
 	}
 	defer conn.Close()
@@ -69,7 +68,7 @@ func (db *Database) Insert(i interface{}) error {
 	defer grpcCancel()
 	conn, err := grpc.DialContext(grpcCtx, address, grpc.WithInsecure(), grpc.WithBlock())
 	if err != nil {
-		log.Printf("Couldn't connect to grpc server! Error: %v\n", err.Error())
+		log.Errorf("Couldn't connect to grpc server! Error: %v\n", err.Error())
 		return err
 	}
 	defer conn.Close()
@@ -84,13 +83,13 @@ func (db *Database) Insert(i interface{}) error {
 	if strings.ToLower(iqr.Status) != "success" {
 		return errors.New(("Something went wrong"))
 	}
-	fmt.Println(iqr.InsertedId)
+	log.Debug(iqr.InsertedId)
 	setReturnId(i, iqr.InsertedId)
 	return nil
 }
 func setReturnId(i interface{}, insertedID string) {
 	if reflect.TypeOf(i).Kind() != reflect.Ptr {
-		fmt.Println("Invalid target, must be ptr")
+		log.Error("Invalid target, must be ptr")
 		return
 	}
 	if reflect.TypeOf(i).Elem().Kind() == reflect.Struct {
@@ -110,8 +109,8 @@ func (db *Database) Update(i interface{}, clauses []string) error {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
-	uq := db.queryBuilder.updateQuery(*db.dbInfo, i, clauses)
-	uqr, err := client.ExecuteUpdate(ctx, &uq)
+	uq := db.queryBuilder.updateQuery(db.dbInfo, i, clauses)
+	uqr, err := client.ExecuteUpdate(ctx, uq)
 	if err != nil {
 		return err
 	}
@@ -131,14 +130,14 @@ func (db *Database) CreateTable(tableName string, columns []string) error {
 	tableRequest := &grpcdb.TableRequest{Info: db.dbInfo, Name: tableName, ColumnDef: columns}
 	tableResponse, err := client.CreateTable(ctx, tableRequest)
 	if err != nil {
-		fmt.Println(fmt.Sprintf("Error while creating table: %v", err))
+		log.Errorf("Error while creating table: %v\n", err)
 		return err
 	}
 	if strings.ToLower(tableResponse.GetStatus()) != "success" {
-		fmt.Println(tableResponse.GetDescription())
+		log.Error(tableResponse.GetDescription())
 		return errors.New("Something went wrong")
 	}
-	fmt.Println(tableResponse.GetDescription())
+	log.Info(tableResponse.GetDescription())
 	return nil
 }
 

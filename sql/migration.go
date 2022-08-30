@@ -1,9 +1,9 @@
 package sql
 
 import (
-	"fmt"
-	"log"
 	"time"
+
+	"github.com/gopalrohra/flyapi/log"
 )
 
 type MigrateFunc = func(Database, string)
@@ -22,13 +22,10 @@ func (migration *FlyDBMigration) CreateDatabase() {
 	db := NewDatabase()
 	err := db.CreateDatabase()
 	if err != nil {
-		log.Fatalf("Error occured")
+		log.Fatal("Error occured")
 		return
 	}
-	fmt.Println("Database created")
-}
-func connectionFailure() {
-	log.Fatal("Connection to grpcDB service failed")
+	log.Fatal("Database created")
 }
 
 // Init initializes migration for the application
@@ -41,7 +38,7 @@ func (migration *FlyDBMigration) Init() {
 	}
 	err := db.CreateTable("migrations", columns)
 	if err != nil {
-		log.Fatalf("Error occured")
+		log.Fatalf("Error occured %v\n", err)
 	}
 }
 
@@ -61,7 +58,7 @@ func (migration *FlyDBMigration) MigrateDB() {
 			updateMigration(db, version)
 		}
 	}
-	fmt.Println("Migrations done")
+	log.Info("Migrations done")
 }
 func updateMigration(db Database, version string) {
 	m := Migration{Version: version, CreationTime: time.Now()}

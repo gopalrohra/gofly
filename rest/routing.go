@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/gopalrohra/flyapi/log"
 	"github.com/gopalrohra/flyapi/transformers"
 	"github.com/gopalrohra/flyapi/util"
 	"github.com/rs/cors"
@@ -20,26 +21,13 @@ type Router struct {
 	Cors   *cors.Cors
 }
 
-var MethodNotAllowedResponse = FlyAPIResponse{
-	Status:  "MethodNotAllowed",
-	Message: "This method is not allowed on this resource",
-}
-var NotFoundResponse = FlyAPIResponse{
-	Status:  "NotFound",
-	Message: "Resource not found",
-}
-var AuthenticationErrorResponse = FlyAPIResponse{
-	Status:  "AuthenticationError",
-	Message: "Can't verify the identity",
-}
-
 func (router *Router) HandleRouting(w http.ResponseWriter, r *http.Request) {
 	route := router.match(r.URL.Path, r.Method)
 	if route.Path == "" {
 		fmt.Fprintf(w, util.ToJSONString(NotFoundResponse))
 		return
 	}
-	fmt.Printf("Value of route path: %s and value of request path: %s\n", route.Path, r.URL.Path)
+	log.Debugf("Value of route path: %s and value of request path: %s\n", route.Path, r.URL.Path)
 	processRoute(w, r, route)
 }
 func (router *Router) match(path string, method string) Route {
@@ -65,24 +53,32 @@ func elementsAreSame(paths []string, routePaths []string) bool {
 }
 func processRoute(w http.ResponseWriter, r *http.Request, route Route) {
 	if resource, ok := route.Resources[r.Method]; ok {
-		var ctx FlyAPIContext
+		ctx := NewFlyAPIContext(r, transformers.NewRequestTransformer(r, route.Path))
 		if resource.Authenticator != nil {
-			ctx = resource.Authenticator(w, r)
-			if ctx.User.UserID == 0 {
+			resource.Authenticator(ctx)
+			if !ctx.IsAuthenticated() {
 				fmt.Fprintf(w, util.ToJSONString(AuthenticationErrorResponse))
 				return
 			}
 		}
-		t := transformers.RequestTransformer{Request: r, RoutePath: route.Path}
-		t.ParseParameters()
-		response := processController(resource.NewController(), ctx, t)
+		response := processResource(ctx, resource)
 		fmt.Fprint(w, util.ToJSONString(response))
 	} else {
 		fmt.Fprint(w, util.ToJSONString(MethodNotAllowedResponse))
 	}
 }
-func processController(controller FlyAPIController, ctx FlyAPIContext, t transformers.RequestTransformer) FlyAPIResponse {
-	controller.Init(ctx, t.PopulateData)
+
+func processResource(ctx *FlyAPIContext, resource FlyAPIResource) FlyAPIResponse {
+	if resource.NewController != nil {
+		return processController(resource.NewController(ctx))
+	} else if resource.Handler != nil {
+		resource.Handler(ctx)
+		return ctx.GetResponse()
+	} else {
+		return NoHandlerFoundResponse
+	}
+}
+func processController(controller FlyAPIController) FlyAPIResponse {
 	if !controller.HasErrors() {
 		controller.Validate()
 	}

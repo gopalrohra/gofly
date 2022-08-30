@@ -3,9 +3,10 @@ package util
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"strconv"
 	"time"
+
+	"github.com/gopalrohra/flyapi/log"
 )
 
 var internalServerErrorResponse, _ = json.Marshal(map[string]string{"status": "Error", "message": "Oops, internal server error."})
@@ -23,7 +24,7 @@ func ToJSONString(o interface{}) string {
 func ToFloat(v string) float32 {
 	r, err := strconv.ParseFloat(v, 32)
 	if err != nil {
-		log.Println(err.Error())
+		log.Error(err.Error())
 		return 0
 	}
 	return float32(r)
@@ -33,7 +34,7 @@ func ToFloat(v string) float32 {
 func ToInt(v string) int {
 	r, err := strconv.ParseInt(v, 10, 32)
 	if err != nil {
-		log.Println(err.Error())
+		log.Error(err.Error())
 		return 0
 	}
 	return int(r)
@@ -44,7 +45,7 @@ func ToDate(v string) time.Time {
 	layout := "2006-01-02 15:04:05 -0700 MST"
 	t, err := time.Parse(layout, v)
 	if err != nil {
-		log.Println(err.Error())
+		log.Error(err.Error())
 		return time.Time{}
 	}
 	return t

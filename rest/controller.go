@@ -3,7 +3,6 @@ package rest
 import "fmt"
 
 type FlyAPIController interface {
-	Init(FlyAPIContext, Bind)
 	Validate()
 	Authorize()
 	Execute()
@@ -12,9 +11,6 @@ type FlyAPIController interface {
 }
 type UnImplementedFlyController struct{}
 
-func (c *UnImplementedFlyController) Init(ctx FlyAPIContext, bind Bind) {
-	fmt.Println("Init method not implemented")
-}
 func (c *UnImplementedFlyController) Validate() {
 	fmt.Println("Validate method not implemented")
 }
