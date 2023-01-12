@@ -60,7 +60,10 @@ func processRecord(nv reflect.Value, row *grpcdb.Row) {
 	}
 }
 func processField(f reflect.Value, tag reflect.StructTag, data map[string]interface{}) {
-	transformers.Transformers[f.Type().String()](f, data[tag.Get("dbColumnName")].(string))
+	if data[tag.Get("dbColumnName")] != nil {
+		v := data[tag.Get("dbColumnName")].(string)
+		transformers.Transformers[f.Type().String()](f, v)
+	}
 }
 func bindRecord(target interface{}, sqr *grpcdb.SelectQueryResult) {
 	log.Info("Inside bindRecord")

@@ -23,7 +23,7 @@ func IntTransformer(f reflect.Value, v string) {
 	}
 }
 func StringTransformer(f reflect.Value, v string) {
-	log.Info(v)
+	log.Debugf("Inside string transformer with value: %v for field: %v\n", v, f.String())
 	f.SetString(v)
 }
 func TimeTransformer(f reflect.Value, v string) {

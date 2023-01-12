@@ -34,6 +34,7 @@ func (transformer *RequestTransformer) PopulateData(dest interface{}) {
 }
 func parsePostParams(r *http.Request) map[string]interface{} {
 	m := make(map[string]interface{})
+	log.Debugf("Value of m: %v", m)
 	body, _ := ioutil.ReadAll(r.Body)
 	json.Unmarshal(body, &m)
 	return m

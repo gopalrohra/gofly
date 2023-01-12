@@ -27,7 +27,14 @@ func NewDatabase() Database {
 	return Database{dbInfo: dbInfoFromEnv()}
 }
 func dbInfoFromEnv() *grpcdb.DatabaseInfo {
-	return &grpcdb.DatabaseInfo{User: env.Config["DB_USER"], Password: env.Config["DB_PASSWORD"], Name: env.Config["DB_NAME"], Host: env.Config["DB_HOST"], Port: env.Config["DB_PORT"]}
+	return &grpcdb.DatabaseInfo{
+		User:     env.Config["DB_USER"],
+		Password: env.Config["DB_PASSWORD"],
+		Name:     env.Config["DB_NAME"],
+		Host:     env.Config["DB_HOST"],
+		Port:     env.Config["DB_PORT"],
+		Type:     "postgres",
+	}
 }
 
 func (db *Database) CreateDatabase() error {
