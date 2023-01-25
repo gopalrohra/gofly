@@ -54,6 +54,9 @@ func (db *Database) CreateDatabase() error {
 	}
 	return nil
 }
+func (db *Database) Query() *Query {
+	return &Query{info: db.dbInfo, executeSelect: db.executeSelect}
+}
 func (db *Database) Scan(i interface{}, queryClauses ...[]string) error {
 	grpcCtx, grpcCancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer grpcCancel()
@@ -69,6 +72,20 @@ func (db *Database) Scan(i interface{}, queryClauses ...[]string) error {
 	binder := dataBinder{target: i}
 	sq := db.queryBuilder.selectQuery(db.dbInfo, i, queryClauses...)
 	return binder.bind(client.ExecuteSelect(ctx, sq))
+}
+func (db *Database) executeSelect(sq *grpcdb.SelectQuery) (*grpcdb.SelectQueryResult, error) {
+	grpcCtx, grpcCancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer grpcCancel()
+	conn, err := grpc.DialContext(grpcCtx, address, grpc.WithInsecure(), grpc.WithBlock())
+	if err != nil {
+		log.Errorf("Couldn't connect to grpc server! Error: %v\n", err.Error())
+		return nil, err
+	}
+	defer conn.Close()
+	client := grpcdb.NewGRPCDatabaseClient(conn)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+	return client.ExecuteSelect(ctx, sq)
 }
 func (db *Database) Insert(i interface{}) error {
 	grpcCtx, grpcCancel := context.WithTimeout(context.Background(), 5*time.Second)

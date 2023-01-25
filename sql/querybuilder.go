@@ -31,6 +31,7 @@ func (qb *queryBuilder) insertQuery(dbInfo *grpcdb.DatabaseInfo, i interface{}) 
 	insertQuery.ReturningIdColumnName = "id"
 	return insertQuery
 }
+
 func (qb *queryBuilder) selectQuery(dbInfo *grpcdb.DatabaseInfo, i interface{}, queryClauses ...[]string) *grpcdb.SelectQuery {
 	var t reflect.Type
 	if reflect.TypeOf(i).Elem().Kind() == reflect.Slice {
@@ -43,9 +44,11 @@ func (qb *queryBuilder) selectQuery(dbInfo *grpcdb.DatabaseInfo, i interface{}, 
 	sq := &grpcdb.SelectQuery{Info: dbInfo, Fields: fields, TableName: getTableName(i)}
 	if len(queryClauses) > 0 {
 		sq.Clauses = queryClauses[0]
-	} else if len(queryClauses) > 1 {
+	}
+	if len(queryClauses) > 1 {
 		sq.Groupby = queryClauses[1]
-	} else if len(queryClauses) > 2 {
+	}
+	if len(queryClauses) > 2 {
 		sq.Orderby = queryClauses[2]
 	}
 	log.Debug(sq)
@@ -75,8 +78,14 @@ func extractFields(t reflect.Type) []string {
 	var fields []string
 	for i := 0; i < t.NumField(); i++ {
 		tag := t.Field(i).Tag
-		if tag.Get("dbColumnName") != "" {
-			fields = append(fields, tag.Get("dbColumnName"))
+		columnName := tag.Get("dbColumnName")
+		columnPrefix := tag.Get("dbColumnPrefix")
+		if columnName != "" {
+			if columnPrefix != "" {
+				fields = append(fields, columnPrefix+columnName)
+			} else {
+				fields = append(fields, columnName)
+			}
 		}
 	}
 	return fields
