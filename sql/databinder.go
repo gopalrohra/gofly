@@ -50,7 +50,7 @@ func processRecord(nv reflect.Value, row *grpcdb.Row) {
 		name := nv.Type().Field(i).Name
 		tag := nv.Type().Field(i).Tag
 		f := nv.FieldByName(name)
-		if f.CanSet() && f.Kind() != reflect.Struct {
+		if f.CanSet() && f.Kind() != reflect.Struct && f.Kind() != reflect.Pointer {
 			processField(f, tag, m)
 		} else {
 			if _, ok := transformers.Transformers[f.Type().String()]; ok {

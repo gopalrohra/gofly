@@ -10,9 +10,10 @@ import (
 type TransformerFunc = func(reflect.Value, string)
 
 var Transformers = map[string]TransformerFunc{
-	"int":       IntTransformer,
-	"string":    StringTransformer,
-	"time.Time": TimeTransformer,
+	"int":        IntTransformer,
+	"string":     StringTransformer,
+	"time.Time":  TimeTransformer,
+	"*time.Time": TimePointerTransformer,
 }
 
 func IntTransformer(f reflect.Value, v string) {
@@ -28,4 +29,13 @@ func StringTransformer(f reflect.Value, v string) {
 }
 func TimeTransformer(f reflect.Value, v string) {
 	f.Set(reflect.ValueOf(util.ToDate(v)))
+}
+func TimePointerTransformer(f reflect.Value, v string) {
+	if v != "" && v != "<nil>" {
+		t := util.ToDate(v)
+		f.Set(reflect.ValueOf(&t))
+	} else {
+		log.Info("Time pointer")
+		f.Set(reflect.Zero(f.Type()))
+	}
 }

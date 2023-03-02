@@ -106,6 +106,12 @@ func getInsertColumnNameValues(entity interface{}) ([]string, []string) {
 				columnValues = append(columnValues, util.ToString(int(f.Int())))
 			} else if f.Type().String() == "time.Time" {
 				columnValues = append(columnValues, util.SQ(f.Interface().(time.Time).Format(time.RFC3339))+"::timestamp")
+			} else if f.Type().String() == "*time.Time" {
+				if f.Interface().(*time.Time) == nil {
+					columnValues = append(columnValues, "null")
+				} else {
+					columnValues = append(columnValues, util.SQ(f.Interface().(*time.Time).Format(time.RFC3339))+"::timestamp")
+				}
 			}
 		}
 	}
