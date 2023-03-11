@@ -5,8 +5,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gopalrohra/flyapi/log"
-	"github.com/gopalrohra/flyapi/util"
+	"github.com/gopalrohra/gofly/log"
+	"github.com/gopalrohra/gofly/util"
 
 	grpcdb "github.com/gopalrohra/grpcdb/grpc_database"
 )

@@ -1,6 +1,6 @@
-package flyapi
+package gofly
 
-import "github.com/gopalrohra/flyapi/sql"
+import "github.com/gopalrohra/gofly/sql"
 
 type MockDBMigration struct {
 	methodCalled       string

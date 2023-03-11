@@ -11,7 +11,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gopalrohra/flyapi/log"
+	"github.com/gopalrohra/gofly/log"
 )
 
 type E2ETest struct {

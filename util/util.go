@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/gopalrohra/flyapi/log"
+	"github.com/gopalrohra/gofly/log"
 )
 
 var internalServerErrorResponse, _ = json.Marshal(map[string]string{"status": "Error", "message": "Oops, internal server error."})

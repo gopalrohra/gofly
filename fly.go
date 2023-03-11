@@ -1,14 +1,14 @@
-package flyapi
+package gofly
 
 import (
 	"flag"
 	"fmt"
 	"net/http"
 
-	"github.com/gopalrohra/flyapi/env"
-	"github.com/gopalrohra/flyapi/log"
-	"github.com/gopalrohra/flyapi/rest"
-	"github.com/gopalrohra/flyapi/sql"
+	"github.com/gopalrohra/gofly/env"
+	"github.com/gopalrohra/gofly/log"
+	"github.com/gopalrohra/gofly/rest"
+	"github.com/gopalrohra/gofly/sql"
 	"github.com/rs/cors"
 )
 

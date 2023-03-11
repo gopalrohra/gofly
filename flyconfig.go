@@ -1,8 +1,8 @@
-package flyapi
+package gofly
 
 import (
-	"github.com/gopalrohra/flyapi/rest"
-	"github.com/gopalrohra/flyapi/sql"
+	"github.com/gopalrohra/gofly/rest"
+	"github.com/gopalrohra/gofly/sql"
 )
 
 type FlyConfig struct {

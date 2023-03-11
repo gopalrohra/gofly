@@ -3,7 +3,7 @@ package rest
 import (
 	"net/http"
 
-	"github.com/gopalrohra/flyapi/transformers"
+	"github.com/gopalrohra/gofly/transformers"
 )
 
 type FlyAPIContext struct {

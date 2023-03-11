@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/gopalrohra/flyapi/log"
-	"github.com/gopalrohra/flyapi/transformers"
-	"github.com/gopalrohra/flyapi/util"
+	"github.com/gopalrohra/gofly/log"
+	"github.com/gopalrohra/gofly/transformers"
+	"github.com/gopalrohra/gofly/util"
 	"github.com/rs/cors"
 )
 

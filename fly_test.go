@@ -1,4 +1,4 @@
-package flyapi
+package gofly
 
 import "testing"
 

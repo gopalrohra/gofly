@@ -7,9 +7,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gopalrohra/flyapi/env"
-	"github.com/gopalrohra/flyapi/log"
-	"github.com/gopalrohra/flyapi/transformers"
+	"github.com/gopalrohra/gofly/env"
+	"github.com/gopalrohra/gofly/log"
+	"github.com/gopalrohra/gofly/transformers"
 	grpcdb "github.com/gopalrohra/grpcdb/grpc_database"
 	"google.golang.org/grpc"
 )

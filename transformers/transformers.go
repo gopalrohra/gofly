@@ -3,8 +3,8 @@ package transformers
 import (
 	"reflect"
 
-	"github.com/gopalrohra/flyapi/log"
-	"github.com/gopalrohra/flyapi/util"
+	"github.com/gopalrohra/gofly/log"
+	"github.com/gopalrohra/gofly/util"
 )
 
 type TransformerFunc = func(reflect.Value, string)

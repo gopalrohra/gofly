@@ -8,7 +8,7 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/gopalrohra/flyapi/log"
+	"github.com/gopalrohra/gofly/log"
 )
 
 type RequestTransformer struct {

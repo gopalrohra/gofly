@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/gopalrohra/flyapi/log"
+	"github.com/gopalrohra/gofly/log"
 )
 
 type MapTransformer struct {

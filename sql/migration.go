@@ -3,7 +3,7 @@ package sql
 import (
 	"time"
 
-	"github.com/gopalrohra/flyapi/log"
+	"github.com/gopalrohra/gofly/log"
 )
 
 type MigrateFunc = func(Database, string)

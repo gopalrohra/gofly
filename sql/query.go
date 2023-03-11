@@ -1,7 +1,7 @@
 package sql
 
 import (
-	"github.com/gopalrohra/flyapi/log"
+	"github.com/gopalrohra/gofly/log"
 	grpcdb "github.com/gopalrohra/grpcdb/grpc_database"
 )
 

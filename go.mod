@@ -1,4 +1,4 @@
-module github.com/gopalrohra/flyapi
+module github.com/gopalrohra/gofly
 
 go 1.19
 
