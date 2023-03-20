@@ -14,6 +14,7 @@ var Transformers = map[string]TransformerFunc{
 	"string":     StringTransformer,
 	"time.Time":  TimeTransformer,
 	"*time.Time": TimePointerTransformer,
+	"float32":    Float32Transformer,
 }
 
 func IntTransformer(f reflect.Value, v string) {
@@ -37,5 +38,12 @@ func TimePointerTransformer(f reflect.Value, v string) {
 	} else {
 		log.Info("Time pointer")
 		f.Set(reflect.Zero(f.Type()))
+	}
+}
+func Float32Transformer(f reflect.Value, v string) {
+	log.Debugf("Value of request param:%v\n", v)
+	floatV := util.ToFloat(v)
+	if !f.OverflowFloat(float64(floatV)) {
+		f.SetFloat(float64(floatV))
 	}
 }

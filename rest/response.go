@@ -1,5 +1,7 @@
 package rest
 
+import "github.com/gopalrohra/gofly/log"
+
 type FlyAPIResponse struct {
 	Status  string
 	Message string
@@ -21,4 +23,26 @@ var AuthenticationErrorResponse = FlyAPIResponse{
 var NoHandlerFoundResponse = FlyAPIResponse{
 	Status:  InternalServerError,
 	Message: InternalServerErrorMessage,
+}
+
+func BuildBadRequestResponse(validationErrors []string) FlyAPIResponse {
+	return FlyAPIResponse{
+		Status:  BadRequest,
+		Message: BadRequestMessage,
+		Data:    validationErrors,
+	}
+}
+func BuildInternalServerResponse(logMsg string, err error) FlyAPIResponse {
+	log.Errorf("%v: %v", logMsg, err)
+	return FlyAPIResponse{
+		Status:  InternalServerError,
+		Message: InternalServerErrorMessage,
+	}
+}
+func BuildSuccessResponse(entity interface{}) FlyAPIResponse {
+	return FlyAPIResponse{
+		Status:  "Success",
+		Message: "Record",
+		Data:    entity,
+	}
 }

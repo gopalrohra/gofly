@@ -1,6 +1,7 @@
 package sql
 
 import (
+	"fmt"
 	"reflect"
 	"strings"
 	"time"
@@ -104,6 +105,8 @@ func getInsertColumnNameValues(entity interface{}) ([]string, []string) {
 				columnValues = append(columnValues, util.SQ(f.String()))
 			} else if f.Kind() == reflect.Int {
 				columnValues = append(columnValues, util.ToString(int(f.Int())))
+			} else if f.Kind() == reflect.Float32 {
+				columnValues = append(columnValues, fmt.Sprintf("%v", float64(f.Float())))
 			} else if f.Type().String() == "time.Time" {
 				columnValues = append(columnValues, util.SQ(f.Interface().(time.Time).Format(time.RFC3339))+"::timestamp")
 			} else if f.Type().String() == "*time.Time" {
@@ -144,6 +147,8 @@ func getUpdateColumns(entity interface{}) []*grpcdb.Column {
 				column.ColumnValue = util.ToString(int(f.Int()))
 			} else if f.Type().String() == "time.Time" {
 				column.ColumnValue = util.SQ(f.Interface().(time.Time).Format(time.RFC3339)) + "::timestamp"
+			} else if f.Kind() == reflect.Float32 {
+				column.ColumnValue = fmt.Sprintf("%v", float64(f.Float()))
 			}
 			columns = append(columns, &column)
 		}

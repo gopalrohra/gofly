@@ -52,7 +52,7 @@ func doWork(dbMigration sql.DBMigration, opts cliOptions, config FlyConfig) {
 		log.Info("Registering routes.")
 		router := registerRoutes(c, &config)
 		log.Infof("Starting the server on port %s\n", env.Config["SERVER_PORT"])
-		log.Info(env.Config)
+		log.Debug(env.Config)
 		handler := http.HandlerFunc(router.HandleRouting)
 		serverHost := fmt.Sprintf("%s:%s", env.Config["SERVER_HOST"], env.Config["SERVER_PORT"])
 		log.Info(serverHost)

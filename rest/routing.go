@@ -22,6 +22,7 @@ type Router struct {
 }
 
 func (router *Router) HandleRouting(w http.ResponseWriter, r *http.Request) {
+	log.Infof("Processing %v for %v\n", r.Method, r.URL)
 	route := router.match(r.URL.Path, r.Method)
 	if route.Path == "" {
 		fmt.Fprintf(w, util.ToJSONString(NotFoundResponse))
